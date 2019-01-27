@@ -7,12 +7,8 @@ export class PaginationPipe implements PipeTransform<any> {
     transform(value: any, metadata: ArgumentMetadata) {
         const result: PaginationModel = new PaginationModel();
 
-        if (value.pageNumber) {
-            result.pageNumber = value.pageNumber;
-        }
-
-        if (value.pageSize) {
-            result.pageSize = value.pageSize;
+        if (value.year) {
+            result.year = value.year;
         }
 
         return result;

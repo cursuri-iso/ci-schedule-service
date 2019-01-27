@@ -1,9 +1,7 @@
 
 export class PaginationMetadata {
-    totalCount: number;
-    pageSize: number;
-    currentPage: number;
-    totalPages: number;
-    previousPageLink: string;
-    nextPageLink: string;
+    years: number[];
+    currentYear: number;
+    previousYearLink: string;
+    nextYearLink: string;
 }

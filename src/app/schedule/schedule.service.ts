@@ -1,24 +1,34 @@
 import { Injectable } from '@nestjs/common';
+import { ObjectID } from 'mongodb';
 
 import { DatabaseService } from '../../shared/database/database.service';
 import { RabbitMessageQueue } from '../../shared/mq/rabbit.mq.component';
 import { ProgramModel } from '../models/program.model';
 import { ProgramDto } from '../models/program.dto';
-import { ObjectID } from 'mongodb';
 import { ScheduleRequestDto } from '../models/schedule-request.dto';
 import { ScheduleDto } from '../models/schedule.dto';
 import { ScheduleModel } from '../models/schedule.model';
+import { PaginationModel } from '../models/pagination.model';
+import { PagedList } from '../models/pagedList.model';
+import { SearchModel } from '../models/search.model';
+import { SortingModel } from '../models/sorting.model';
 
 @Injectable()
 export class ScheduleService {
     constructor(private databaseService: DatabaseService, private mqService: RabbitMessageQueue) { }
 
-    async getSchedules(orgId: string, trainingId: string, year: number): Promise<any> {
+    async getSchedules(orgId: string,
+                       trainingId: string,
+                       pagination: PaginationModel,
+                       sorting?: SortingModel,
+                       search?: SearchModel): Promise<PagedList<ScheduleDto>> {
         if (ObjectID.isValid(orgId) && ObjectID.isValid(trainingId)) {
-            const result = await this.databaseService.getOne(ProgramModel, { org_id: orgId, training_id: trainingId });
-            const mapped = automapper.map(ProgramModel, ProgramDto, result);
+            const result = await this.databaseService.getOne(ProgramModel, { org_id: orgId, training_id: trainingId, year: pagination.year }) as ProgramModel;
+            const mapped = automapper.map(ScheduleModel, ScheduleDto, result.schedules);
 
-            return mapped;
+            const years = [2020, 2019, 2018, 2017];
+
+            return PagedList.create<ScheduleDto>(mapped, years, pagination.year);
         }
 
         return null;

@@ -33,6 +33,8 @@ export class AppModule {
                         .forMember('standards', (opts: AutoMapperJs.IMemberConfigurationOptions) => opts.ignore())
                         .forMember('tags', (opts: AutoMapperJs.IMemberConfigurationOptions) => opts.ignore())
                         .forMember('startDate', (opts: AutoMapperJs.IMemberConfigurationOptions) => new Date(opts.sourceObject.startDate));
+
+                  config.createMap('ScheduleModel', 'ScheduleDto');
               });
 
               this.loggingService.getLogger().info(`Successfully initialised ci-schedule-service`);

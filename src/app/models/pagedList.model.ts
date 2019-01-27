@@ -7,51 +7,46 @@ export class PagedList<T> extends Array<T> {
     public totalPages: number;
 
     get hasPrevious(): boolean {
-        return this.currentPage > 1;
+        return this.years.some(year => year < this.currentYear);
     }
 
     get hasNext(): boolean {
-        return this.currentPage < this.totalPages;
+        return this.years.some(year => year > this.currentYear);
     }
 
-    constructor(items: T[], public totalCount: number, public currentPage: number, public pageSize: number) {
+    constructor(items: T[], public years: number[], public currentYear: number) {
         super(...items);
-        this.totalPages = Math.ceil(this.totalCount / this.pageSize);
     }
 
-    public static create<T>(items: T[], count: number, page: number, size: number) {
-        return new PagedList(items, count, page, size);
+    public static create<T>(items: T[], years: number[], currentYear: number) {
+        return new PagedList(items, years, currentYear);
     }
 }
 
-export function buildPaginationMetadata<T extends EntityDto>(paginatedList: PagedList<T>, collectionName: string): PaginationMetadata {
+export function buildPaginationMetadata<T extends EntityDto>(paginatedList: PagedList<T>, collectionName: string, orgId: string, trainingId: string): PaginationMetadata {
     const result: PaginationMetadata = {
-        currentPage: paginatedList.currentPage,
-        pageSize: paginatedList.pageSize,
-        totalCount: paginatedList.totalCount,
-        totalPages: paginatedList.totalPages,
-        nextPageLink: '',
-        previousPageLink: '',
+        currentYear: paginatedList.currentYear,
+        years: paginatedList.years,
+        nextYearLink: '',
+        previousYearLink: '',
     };
 
     let url = urlAssembler()
-            .prefix(`/entities`)
-            .template(`/${collectionName}`);
+            .prefix(`/${collectionName}`)
+            .template(`/${orgId}/${trainingId}`);
 
     if (paginatedList.hasNext) {
         url = url
-                .param('pageNumber', `${paginatedList.currentPage + 1}`, false)
-                .param('pageSize', `${paginatedList.pageSize}`, false);
+            .param('year', `${paginatedList.currentYear + 1}`, false);
 
-        result.nextPageLink = url.toString();
+        result.nextYearLink = url.toString();
     }
 
     if (paginatedList.hasPrevious) {
         url = url
-        .param('pageNumber', `${paginatedList.currentPage - 1}`, false)
-        .param('pageSize', `${paginatedList.pageSize}`, false);
+            .param('year', `${paginatedList.currentYear - 1}`, false);
 
-        result.previousPageLink = url.toString();
+        result.previousYearLink = url.toString();
     }
 
     return result;

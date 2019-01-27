@@ -62,6 +62,10 @@ export class DatabaseService {
             deleted: null,
         };
 
+        if (page) {
+            where.year = page.year;
+        }
+
         const order: any = {
             updated_date: 'DESC',
         };
@@ -84,11 +88,6 @@ export class DatabaseService {
             where,
             order,
         };
-
-        if (page) {
-            options.take = page.pageSize;
-            options.skip = (page.pageNumber - 1) * page.pageSize;
-        }
 
         return await this.connection.getMongoRepository(collection).findAndCount(options);
     }
