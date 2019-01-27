@@ -2,7 +2,7 @@ import { Entity, Column } from 'typeorm';
 
 import { EntityModel } from './entity.model';
 import { IsString, Length, IsDate, IsInt, IsBoolean, IsNumber, IsPositive, Max, Min, IsMongoId, ArrayNotEmpty, ValidateNested } from 'class-validator';
-import { ScheduleDto } from './schedule.dto';
+import { ScheduleModel } from './schedule.model';
 
 @Entity('programs')
 export class ProgramModel extends EntityModel {
@@ -17,6 +17,10 @@ export class ProgramModel extends EntityModel {
     org_id: string;
 
     @Column()
+    @IsInt()
+    year: number;
+
+    @Column()
     @ValidateNested({ each: true })
-    schedules: ScheduleDto[];
+    schedules: ScheduleModel[];
 }

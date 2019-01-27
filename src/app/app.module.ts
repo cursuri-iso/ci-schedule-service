@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
+import 'automapper-ts';
+
 import { SharedModule } from '../shared/shared.module';
 import { RabbitMessageQueue } from '../shared/mq/rabbit.mq.component';
 import { LoggingService } from '../shared/logging/logging.service';
 import { DatabaseService } from '../shared/database/database.service';
 import { ListenerService } from '../listeners/listener.service';
 import { ListenersModule } from '../listeners/listener.module';
-import 'automapper-ts';
+import { ScheduleModule } from './schedule/schedule.module';
+import { ObjectId } from 'mongodb';
 
 @Module({
-      imports: [ SharedModule ],
+      imports: [ SharedModule, ListenersModule, ScheduleModule ],
 })
 export class AppModule {
       constructor(private mqService: RabbitMessageQueue, private loggingService: LoggingService, private databaseService: DatabaseService, private listener: ListenerService) {}
@@ -22,10 +25,14 @@ export class AppModule {
               await this.listener.listen();
 
               automapper.initialize((config: AutoMapperJs.IConfiguration) => {
-                  config.createMap('ProgramDto', 'ProgramModel')
-                        .forMember('schedules', (opts: AutoMapperJs.IMemberConfigurationOptions) => opts.sourceObject.schedules.forEach(schedule => schedule.startDate = new Date(schedule.startDate)));
-
-                  config.createMap('ProgramModel', 'ProgramDto');
+                  config.createMap('ScheduleDto', 'ScheduleModel')
+                        .forMember('_id', (opts: AutoMapperJs.IMemberConfigurationOptions) => new ObjectId())
+                        .forMember('org_id', (opts: AutoMapperJs.IMemberConfigurationOptions) => opts.ignore())
+                        .forMember('training_id', (opts: AutoMapperJs.IMemberConfigurationOptions) => opts.ignore())
+                        .forMember('domains', (opts: AutoMapperJs.IMemberConfigurationOptions) => opts.ignore())
+                        .forMember('standards', (opts: AutoMapperJs.IMemberConfigurationOptions) => opts.ignore())
+                        .forMember('tags', (opts: AutoMapperJs.IMemberConfigurationOptions) => opts.ignore())
+                        .forMember('startDate', (opts: AutoMapperJs.IMemberConfigurationOptions) => new Date(opts.sourceObject.startDate));
               });
 
               this.loggingService.getLogger().info(`Successfully initialised ci-schedule-service`);
