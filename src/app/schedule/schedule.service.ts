@@ -73,10 +73,9 @@ export class ScheduleService {
                 'schedules._id': new ObjectID(updatedSchedule._id),
             };
 
-            delete updatedSchedule._id;
-
             const update = {
-                'schedules.$': updatedSchedule,
+                'updatedAt': new Date(),
+                'schedules.$': automapper.map(ScheduleDto, ScheduleModel, updatedSchedule),
             };
 
             await this.databaseService.patchOne(ProgramModel, filter, update);
