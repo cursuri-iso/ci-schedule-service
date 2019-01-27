@@ -1,9 +1,9 @@
 import { ScheduleDto } from './schedule.dto';
 
 export class ScheduleRequestDto {
-    added: ScheduleDto[];
+    added?: ScheduleDto[];
 
-    updated: ScheduleDto[];
+    updated?: ScheduleDto[];
 
-    deleted: ScheduleDto[];
+    deleted?: ScheduleDto[];
 }

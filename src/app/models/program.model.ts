@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm';
+import { IsInt, IsMongoId, ValidateNested } from 'class-validator';
 
 import { EntityModel } from './entity.model';
-import { IsString, Length, IsDate, IsInt, IsBoolean, IsNumber, IsPositive, Max, Min, IsMongoId, ArrayNotEmpty, ValidateNested } from 'class-validator';
 import { ScheduleModel } from './schedule.model';
 
 @Entity('programs')

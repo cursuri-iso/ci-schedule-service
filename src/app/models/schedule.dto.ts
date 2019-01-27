@@ -53,5 +53,5 @@ export class ScheduleDto extends EntityDto {
     @IsString()
     @IsOptional()
     @Length(0, 1000)
-    remark: string;
+    remark?: string;
 }
