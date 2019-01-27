@@ -32,6 +32,10 @@ export class ScheduleService {
         if (request.updated && request.updated.length > 0) {
             await this.processUpdatedSchedules(request.updated);
         }
+
+        if (request.deleted && request.deleted.length > 0) {
+            await this.processDeletedSchedules(request.deleted);
+        }
     }
 
     private async processAddedSchedules(addedSchedules: ScheduleDto[]) {
@@ -69,13 +73,31 @@ export class ScheduleService {
                 'org_id': updatedSchedule.org_id,
                 'training_id': updatedSchedule.training_id,
                 'year': new Date(updatedSchedule.startDate).getFullYear(),
-                'deleted': null,
                 'schedules._id': new ObjectID(updatedSchedule._id),
             };
 
             const update = {
                 'updatedAt': new Date(),
                 'schedules.$': automapper.map(ScheduleDto, ScheduleModel, updatedSchedule),
+            };
+
+            await this.databaseService.patchOne(ProgramModel, filter, update);
+        }
+    }
+
+    private async processDeletedSchedules(deletedSchedules: ScheduleDto[]) {
+        for (const deletedSchedule of deletedSchedules) {
+            const filter = {
+                org_id: deletedSchedule.org_id,
+                training_id: deletedSchedule.training_id,
+                year: new Date(deletedSchedule.startDate).getFullYear(),
+            };
+
+            const existingProgram = await this.databaseService.getOne(ProgramModel, filter) as ProgramModel;
+
+            const update = {
+                updatedAt: new Date(),
+                schedules: existingProgram.schedules.splice(existingProgram.schedules.findIndex(schedule => schedule._id.toHexString() === deletedSchedule._id), 1),
             };
 
             await this.databaseService.patchOne(ProgramModel, filter, update);
